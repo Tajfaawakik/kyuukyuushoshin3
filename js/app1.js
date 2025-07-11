@@ -215,6 +215,7 @@ function initializeChartSupportApp() {
             drinkingText += ` (${type}を${amount})`;
         }
 
+        // ★★★ カルテ用メモ出力の順序を修正 ★★★
         const output = `
 【患者情報】
 氏名：${values.name || '未入力'} 様
@@ -225,12 +226,12 @@ function initializeChartSupportApp() {
 ・${values.histories.join('、') || '特記事項なし'}
 ${values.surgery ? '・手術歴/特記事項：' + values.surgery : ''}
 
+【内服薬】
+${values.medications.length > 0 ? values.medications.map(m => `・${m}`).join('\n') : '・なし'}
+
 【アレルギー】
 ・${values.allergies}
 ${values.otherAllergies ? '・その他：' + values.otherAllergies : ''}
-
-【内服薬】
-${values.medications.length > 0 ? values.medications.map(m => `・${m}`).join('\n') : '・なし'}
 
 【生活歴】
 喫煙：${smokingText || '未選択'}
