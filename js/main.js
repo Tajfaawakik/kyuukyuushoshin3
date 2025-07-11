@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const appInitializers = {
         app1: initializeChartSupportApp,
         app2: initializeDiagnosisSupportApp,
-        app3: initializeBloodTestApp
+        app3: initializeBloodTestApp,
+        app4: initializeIntegrationApp // ★★★ app4の初期化関数を追加 ★★★
     };
 
     const initializedApps = new Set();
@@ -22,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.remove('active');
         });
 
-        document.getElementById(targetId).classList.add('active');
+        const targetContainer = document.getElementById(targetId);
+        targetContainer.classList.add('active');
         document.querySelector(`.nav-button[data-target="${targetId}"]`).classList.add('active');
 
         // Initialize the app only on its first load
@@ -31,6 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 appInitializers[targetId]();
             }
             initializedApps.add(targetId);
+        }
+        
+        // ★★★ app4に切り替えるたびに内容を更新する ★★★
+        if (targetId === 'app4' && typeof targetContainer.update === 'function') {
+            targetContainer.update();
         }
     }
 

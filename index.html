@@ -13,6 +13,7 @@
             <button class="nav-button active" data-target="app1">カルテ記載支援</button>
             <button class="nav-button" data-target="app2">症候鑑別支援</button>
             <button class="nav-button" data-target="app3">採血結果入力</button>
+            <button class="nav-button" data-target="app4">統合記録</button>
         </nav>
     </header>
 
@@ -132,11 +133,24 @@
                 <div id="data-list-app3"></div>
             </div>
         </div>
+
+        <div id="app4" class="app-content">
+            <div class="container-app4">
+                <h2>統合記録</h2>
+                <p>各アプリで入力・選択された内容がここにまとめて表示されます。</p>
+                <div class="output-panel-app4">
+                    <textarea id="output-memo-app4" readonly></textarea>
+                    <button id="copy-button-app4">クリップボードにコピー</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script src="js/app1.js"></script>
     <script src="js/app2.js"></script>
     <script src="js/app3.js"></script>
+    <script src="js/app4.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
+
