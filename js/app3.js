@@ -131,9 +131,23 @@ function initializeBloodTestApp() {
                     e.preventDefault();
                     const item = findItemById(input.dataset.itemId);
                     if (!item) return;
-                    let value = parseFloat(input.value) || 0;
-                    value += (e.key === 'ArrowUp' ? item.step : -item.step);
-                    input.value = parseFloat(value.toFixed(10));
+
+                    // ▼▼▼ 変更箇所 ▼▼▼
+                    if (input.value === '') {
+                        // 入力値が空の場合
+                        if (e.key === 'ArrowUp') {
+                            input.value = item.max; // 上矢印で上限値を入力
+                        } else { // ArrowDown
+                            input.value = item.min; // 下矢印で下限値を入力
+                        }
+                    } else {
+                        // 入力値がある場合は、既存の挙動を維持
+                        let value = parseFloat(input.value);
+                        value += (e.key === 'ArrowUp' ? item.step : -item.step);
+                        input.value = parseFloat(value.toFixed(10));
+                    }
+                    // ▲▲▲ 変更箇所 ▲▲▲
+                    
                     checkAbnormality(input, item);
                 }
             }
