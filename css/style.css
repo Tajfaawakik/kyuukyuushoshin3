@@ -666,3 +666,49 @@ main#app-container {
         height: 60vh;
     }
 }
+
+/* ... App3の既存のスタイルの末尾に追記 ... */
+#app3 .input-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+#app3 .input-wrapper input[type="number"] {
+    text-align: center;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    -moz-appearance: textfield; /* Firefoxでのスピンボタン非表示 */
+}
+/* Webkit系ブラウザでのスピンボタン非表示 */
+#app3 .input-wrapper input[type="number"]::-webkit-outer-spin-button,
+#app3 .input-wrapper input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#app3 .stepper-btn {
+    background-color: #e9ecef;
+    border: 1px solid var(--border-color);
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2em;
+    width: 38px; /* inputのpaddingとborderを考慮 */
+    height: 38px;
+    line-height: 36px;
+    padding: 0;
+    transition: background-color 0.2s;
+}
+
+#app3 .stepper-btn:hover {
+    background-color: #d4dae0;
+}
+
+#app3 .stepper-btn:first-child {
+    border-radius: 4px 0 0 4px;
+}
+
+#app3 .stepper-btn:last-child {
+    border-radius: 0 4px 4px 0;
+}

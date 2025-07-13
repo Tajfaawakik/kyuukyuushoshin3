@@ -75,15 +75,38 @@ function initializeBloodTestApp() {
             const group = document.createElement('div');
             group.className = 'item-group';
             const label = document.createElement('label');
-            label.htmlFor = `app3-${item.id}`; // Unique ID
+            label.htmlFor = `app3-${item.id}`;
             label.textContent = `${item.name} (${item.unit})`;
             group.appendChild(label);
+
+            // ▼▼▼ ボタンと入力欄をラップするコンテナを追加 ▼▼▼
+            const inputWrapper = document.createElement('div');
+            inputWrapper.className = 'input-wrapper';
+
             const input = document.createElement('input');
             input.type = 'number';
-            input.id = `app3-${item.id}`; // Unique ID
+            input.id = `app3-${item.id}`;
             input.step = item.step;
             input.dataset.itemId = item.id;
-            group.appendChild(input);
+
+            const btnDecrement = document.createElement('button');
+            btnDecrement.type = 'button';
+            btnDecrement.className = 'stepper-btn';
+            btnDecrement.textContent = '-';
+            btnDecrement.dataset.action = 'decrement';
+
+            const btnIncrement = document.createElement('button');
+            btnIncrement.type = 'button';
+            btnIncrement.className = 'stepper-btn';
+            btnIncrement.textContent = '+';
+            btnIncrement.dataset.action = 'increment';
+
+            inputWrapper.appendChild(btnDecrement);
+            inputWrapper.appendChild(input);
+            inputWrapper.appendChild(btnIncrement);
+            group.appendChild(inputWrapper);
+            // ▲▲▲ ここまで ▲▲▲
+
             const refValue = document.createElement('div');
             refValue.className = 'reference-value';
             refValue.textContent = `基準値: ${item.min} - ${item.max}`;
@@ -119,11 +142,31 @@ function initializeBloodTestApp() {
                 }
             }
         });
+        
+        // ▼▼▼ ボタンクリック時の処理を追加 ▼▼▼
+        itemsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('stepper-btn')) {
+                const action = e.target.dataset.action;
+                const input = e.target.parentElement.querySelector('input[type="number"]');
+                const item = findItemById(input.dataset.itemId);
+                if (!item) return;
+
+                if (input.value === '') {
+                    input.value = (action === 'increment') ? item.max : item.min;
+                } else {
+                    let value = parseFloat(input.value);
+                    const step = (action === 'increment') ? item.step : -item.step;
+                    value += step;
+                    input.value = parseFloat(value.toFixed(10));
+                }
+                checkAbnormality(input, item);
+            }
+        });
+        // ▲▲▲ ここまで ▲▲▲
 
         itemsContainer.addEventListener('keydown', handleArrowKeys);
         itemsContainer.addEventListener('focusin', handleFocus);
         itemsContainer.addEventListener('input', handleInput);
-       
 
         function handleArrowKeys(e) {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
@@ -133,21 +176,17 @@ function initializeBloodTestApp() {
                     const item = findItemById(input.dataset.itemId);
                     if (!item) return;
 
-                    // ▼▼▼ 変更箇所 ▼▼▼
                     if (input.value === '') {
-                        // 入力値が空の場合
                         if (e.key === 'ArrowUp') {
-                            input.value = item.max; // 上矢印で上限値を入力
-                        } else { // ArrowDown
-                            input.value = item.min; // 下矢印で下限値を入力
+                            input.value = item.max;
+                        } else {
+                            input.value = item.min;
                         }
                     } else {
-                        // 入力値がある場合は、既存の挙動を維持
                         let value = parseFloat(input.value);
                         value += (e.key === 'ArrowUp' ? item.step : -item.step);
                         input.value = parseFloat(value.toFixed(10));
                     }
-                    // ▲▲▲ 変更箇所 ▲▲▲
                     
                     checkAbnormality(input, item);
                 }
@@ -156,13 +195,10 @@ function initializeBloodTestApp() {
 
         function handleFocus(e) {
             const input = e.target;
-            if (input.type === 'number' && !input.value) {
+             if (input.type === 'number' && input.value) {
                 const item = findItemById(input.dataset.itemId);
-                if (item) {
-                    input.value = item.max; 
-                    checkAbnormality(input, item);
-                }
-            }
+                if(item) checkAbnormality(input, item);
+             }
         }
         
         function handleInput(e) {
