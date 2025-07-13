@@ -123,6 +123,7 @@ function initializeBloodTestApp() {
         itemsContainer.addEventListener('keydown', handleArrowKeys);
         itemsContainer.addEventListener('focusin', handleFocus);
         itemsContainer.addEventListener('input', handleInput);
+       
 
         function handleArrowKeys(e) {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
