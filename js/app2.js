@@ -13,6 +13,30 @@ function initializeDiagnosisSupportApp() {
     let selectedKeywords = new Set();
     let recordedDiagnoses = new Map();
 
+    // ===== データロード・セーブ関数 =====
+    const loadData = (patient) => {
+        if (!patient || !patient.app2_data) return;
+        const data = patient.app2_data;
+        selectionOrder = Array.isArray(data.selectionOrder) ? [...data.selectionOrder] : [];
+        lastSelectedSet = new Set(selectionOrder);
+        pinnedItems = new Map(Object.entries(data.pinnedItems || {}).map(([k, v]) => [k, new Set(v)]));
+        selectedKeywords = new Set(data.selectedKeywords || []);
+        recordedDiagnoses = new Map(Object.entries(data.recordedDiagnoses || {}).map(([k, v]) => [k, new Set(v)]));
+        render();
+    };
+
+    const saveData = () => {
+        const data = {
+            selectionOrder,
+            pinnedItems: Object.fromEntries(Array.from(pinnedItems.entries()).map(([k, v]) => [k, Array.from(v)])),
+            selectedKeywords: Array.from(selectedKeywords),
+            recordedDiagnoses: Object.fromEntries(Array.from(recordedDiagnoses.entries()).map(([k, v]) => [k, Array.from(v)])),
+        };
+        if (window.PatientManager && typeof window.PatientManager.updateActivePatientData === 'function') {
+            window.PatientManager.updateActivePatientData('app2_data', data);
+        }
+    };
+
     async function loadDataAndInitialize() {
         try {
             const [medicalResponse, keywordsResponse] = await Promise.all([
@@ -30,11 +54,12 @@ function initializeDiagnosisSupportApp() {
 
     function initialize() {
         populateSymptomDropdown();
-        symptomSelect.addEventListener('change', handleSymptomSelectionChange);
-        selectedKeywordsContainer.addEventListener('click', handleTagClick);
-        resultsContainer.addEventListener('click', handleCardClick);
+        symptomSelect.addEventListener('change', () => { handleSymptomSelectionChange(); saveData(); });
+        selectedKeywordsContainer.addEventListener('click', (e) => { handleTagClick(e); saveData(); });
+        resultsContainer.addEventListener('click', (e) => { handleCardClick(e); saveData(); });
         copyButton.addEventListener('click', handleCopyButtonClick);
         render();
+        saveData();
     }
 
     function handleSymptomSelectionChange() {
@@ -305,4 +330,6 @@ function initializeDiagnosisSupportApp() {
         copyTextArea.value = text.trim();
     }
     loadDataAndInitialize();
+    // main.jsから呼び出せるようにする
+    document.getElementById('app2').load = loadData;
 }

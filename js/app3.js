@@ -1,4 +1,29 @@
 function initializeBloodTestApp() {
+    // ===== データロード・セーブ関数 =====
+    const loadData = (patient) => {
+        if (!patient || !patient.app3_data) return;
+        const data = patient.app3_data;
+        if (Array.isArray(data.bloodTestData)) {
+            localStorage.setItem('bloodTestData', JSON.stringify(data.bloodTestData));
+        }
+        document.getElementById('patient-id-app3').value = data.patientId || '';
+        document.getElementById('test-date-app3').value = data.testDate || '';
+        document.getElementById('memo-app3').value = data.memo || '';
+    };
+
+    const saveData = () => {
+        const bloodTestData = JSON.parse(localStorage.getItem('bloodTestData')) || [];
+        const data = {
+            bloodTestData,
+            patientId: document.getElementById('patient-id-app3').value,
+            testDate: document.getElementById('test-date-app3').value,
+            memo: document.getElementById('memo-app3').value,
+        };
+        if (window.PatientManager && typeof window.PatientManager.updateActivePatientData === 'function') {
+            window.PatientManager.updateActivePatientData('app3_data', data);
+        }
+    };
+    
     async function initializeApp() {
         try {
             const response = await fetch('data/test_items.json');
@@ -252,3 +277,6 @@ function initializeBloodTestApp() {
 
     initializeApp();
 }
+
+// main.jsから呼び出せるようにする
+    document.getElementById('app3').load = loadData;

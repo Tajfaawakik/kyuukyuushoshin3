@@ -3,6 +3,22 @@ function initializeIntegrationApp() {
     const outputMemo = document.getElementById('output-memo-app4');
     const copyButton = document.getElementById('copy-button-app4');
 
+    // ===== データロード・セーブ関数 =====
+    const loadData = (patient) => {
+        if (!patient || !patient.app4_data) return;
+        const data = patient.app4_data;
+        outputMemo.value = data.outputMemo || '';
+    };
+
+    const saveData = () => {
+        const data = {
+            outputMemo: outputMemo.value,
+        };
+        if (window.PatientManager && typeof window.PatientManager.updateActivePatientData === 'function') {
+            window.PatientManager.updateActivePatientData('app4_data', data);
+        }
+    };
+
     // --- データ集約と表示 ---
     const updateIntegratedOutput = () => {
         // App1のデータを取得
@@ -68,11 +84,14 @@ ${app3Output}
         `.trim();
 
         outputMemo.value = finalOutput;
+        saveData();
     };
 
     // main.jsから呼び出せるように、コンテナ要素に関数をアタッチ
     app4Container.update = updateIntegratedOutput;
 
+    // main.jsから呼び出せるようにする
+    app4Container.load = loadData;
     // --- コピー機能 ---
     const copyToClipboard = () => {
         if (!navigator.clipboard) {

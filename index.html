@@ -7,32 +7,42 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="patient-selection-view" class="active">
+        <div class="selection-container">
+            <h2>患者を選択または新規作成</h2>
+            <div class="new-patient-form">
+                <input type="text" id="new-patient-name" placeholder="新しい患者名を入力">
+                <button id="add-patient-button">新規作成して開始</button>
+            </div>
+            <hr>
+            <h3>既存の患者を選択</h3>
+            <div id="patient-list"></div>
+        </div>
+    </div>
+
     <header class="app-header">
         <h1>救急初診支援統合アプリ</h1>
+        <div id="active-patient-display"></div>
         <nav id="app-nav">
-            <button class="nav-button active" data-target="app1">カルテ記載支援</button>
-            <button class="nav-button" data-target="app2">症候鑑別支援</button>
-            <button class="nav-button" data-target="app3">採血結果入力</button>
-            <button class="nav-button" data-target="app4">統合記録</button>
+            <button class="nav-button" data-target="app1" disabled>カルテ記載支援</button>
+            <button class="nav-button" data-target="app2" disabled>症候鑑別支援</button>
+            <button class="nav-button" data-target="app3" disabled>採血結果入力</button>
+            <button class="nav-button" data-target="app4" disabled>統合記録</button>
         </nav>
     </header>
 
     <main id="app-container">
-        <div id="app1" class="app-content active">
+        <div id="app1" class="app-content">
             <div class="container-app1">
                 <div class="input-panel">
                     <h2>入力フォーム</h2>
                     <fieldset id="patient-info">
                         <legend>患者情報</legend>
-                        <label for="name">氏名:</label>
-                        <input type="text" id="name" placeholder="山田 太郎">
-                        <label for="age">年齢:</label>
-                        <input type="number" id="age" placeholder="75"> 歳
+                        <label for="name">氏名:</label> <input type="text" id="name" placeholder="山田 太郎" readonly>
+                        <label for="age">年齢:</label> <input type="number" id="age" placeholder="75"> 歳
                         <label>性別:</label>
                         <div id="gender" class="button-group">
-                            <button data-value="男性">男性</button>
-                            <button data-value="女性">女性</button>
-                            <button data-value="その他">その他</button>
+                            <button data-value="男性">男性</button> <button data-value="女性">女性</button> <button data-value="その他">その他</button>
                         </div>
                     </fieldset>
                     <fieldset id="medical-history">
@@ -49,11 +59,7 @@
                     <fieldset id="allergies">
                         <legend>アレルギー管理</legend>
                         <div id="allergy-tags" class="button-group">
-                            <button data-value="ペニシリン系">ペニシリン系</button>
-                            <button data-value="NSAIDs">NSAIDs</button>
-                            <button data-value="造影剤">造影剤</button>
-                            <button data-value="卵">卵</button>
-                            <button data-value="なし">なし</button>
+                            <button data-value="ペニシリン系">ペニシリン系</button> <button data-value="NSAIDs">NSAIDs</button> <button data-value="造影剤">造影剤</button> <button data-value="卵">卵</button> <button data-value="なし">なし</button>
                         </div>
                         <textarea id="other-allergies" placeholder="上記タグ以外の情報を自由記述"></textarea>
                     </fieldset>
@@ -61,16 +67,12 @@
                         <legend>生活歴・ADL評価</legend>
                         <label>喫煙歴:</label>
                         <div id="smoking-status" class="button-group">
-                            <button data-value="なし">なし</button>
-                            <button data-value="現喫煙">現喫煙</button>
-                            <button data-value="過去喫煙">過去喫煙</button>
+                            <button data-value="なし">なし</button> <button data-value="現喫煙">現喫煙</button> <button data-value="過去喫煙">過去喫煙</button>
                         </div>
                         <div id="smoking-details" class="details-area"></div>
                         <label>飲酒歴:</label>
                         <div id="drinking-status" class="button-group">
-                            <button data-value="なし">なし</button>
-                            <button data-value="機会飲酒">機会飲酒</button>
-                            <button data-value="毎日">毎日</button>
+                            <button data-value="なし">なし</button> <button data-value="機会飲酒">機会飲酒</button> <button data-value="毎日">毎日</button>
                         </div>
                         <div id="drinking-details" class="details-area"></div>
                         <label>ADL評価 (Barthel Index):</label>
@@ -96,9 +98,7 @@
                     <strong>選択済みキーワード:</strong>
                     <div id="selected-keywords-tags"></div>
                 </div>
-                <div id="results-container">
-                    <p>データを読み込んでいます...</p>
-                </div>
+                <div id="results-container"><p>データを読み込んでいます...</p></div>
                 <div id="record-copy-area">
                     <h2>記録・コピー用テキスト</h2>
                     <textarea id="copy-textarea-app2" readonly placeholder="症候や鑑別疾患を選択すると、内容がここに記録されます。"></textarea>
@@ -112,24 +112,15 @@
                 <form id="input-form-app3">
                     <h2>基本情報</h2>
                     <div class="form-group basic-info">
-                        <div>
-                            <label for="patient-id-app3">患者ID</label>
-                            <input type="text" id="patient-id-app3">
-                        </div>
-                        <div>
-                            <label for="test-date-app3">検査日</label>
-                            <input type="date" id="test-date-app3">
-                        </div>
+                        <div><label for="patient-id-app3">患者ID</label><input type="text" id="patient-id-app3" readonly></div>
+                        <div><label for="test-date-app3">検査日</label><input type="date" id="test-date-app3"></div>
                     </div>
                     <div id="test-items-container-app3"></div>
-                    <div class="form-group">
-                        <label for="memo-app3">メモ</label>
-                        <textarea id="memo-app3" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="save-button">保存する</button>
+                    <div class="form-group"><label for="memo-app3">メモ</label><textarea id="memo-app3" rows="3"></textarea></div>
+                    <button type="submit" class="save-button">この採血結果を保存</button>
                 </form>
                 <hr>
-                <h2>保存済みデータ一覧</h2>
+                <h2>この患者の保存済みデータ一覧</h2>
                 <div id="data-list-app3"></div>
             </div>
         </div>
@@ -146,6 +137,8 @@
         </div>
     </main>
 
+    <script src="js/patient.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/app1.js"></script>
     <script src="js/app2.js"></script>
     <script src="js/app3.js"></script>
@@ -153,4 +146,3 @@
     <script src="js/main.js"></script>
 </body>
 </html>
-

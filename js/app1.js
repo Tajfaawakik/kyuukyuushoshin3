@@ -21,6 +21,87 @@ function initializeChartSupportApp() {
         copyBtn: document.getElementById('copy-button-app1')
     };
 
+    // ===== データロード・セーブ関数 =====
+    const loadData = (patient) => {
+        if (!patient || !patient.app1_data) return;
+        const data = patient.app1_data;
+        formElements.name.value = data.name || '';
+        formElements.age.value = data.age || '';
+        // 性別
+        Array.from(formElements.genderGroup.querySelectorAll('button')).forEach(btn => {
+            btn.classList.toggle('active', data.gender && data.gender.includes(btn.dataset.value));
+        });
+        // 既往歴
+        Array.from(formElements.historyTags.querySelectorAll('button')).forEach(btn => {
+            btn.classList.toggle('active', data.histories && data.histories.includes(btn.dataset.value));
+        });
+        formElements.surgeryHistory.value = data.surgery || '';
+        // アレルギー
+        Array.from(formElements.allergyTags.querySelectorAll('button')).forEach(btn => {
+            btn.classList.toggle('active', data.allergies && data.allergies.includes(btn.dataset.value));
+        });
+        formElements.otherAllergies.value = data.otherAllergies || '';
+        // 内服薬
+        formElements.medListContainer.innerHTML = '';
+        if (data.medications && Array.isArray(data.medications)) {
+            data.medications.forEach(med => {
+                const [name, ...usageArr] = med.split(' ');
+                addMedicationRow(name, usageArr.join(' '));
+            });
+        }
+        // 喫煙
+        Array.from(formElements.smokingStatusGroup.querySelectorAll('button')).forEach(btn => {
+            btn.classList.toggle('active', data.smokingStatus && data.smokingStatus.includes(btn.dataset.value));
+        });
+        handleSmokingDetails(formElements.smokingStatusGroup.querySelector('button.active'));
+        if (data.smokingStatus && data.smokingStatus !== 'なし') {
+            document.getElementById('smoking-years')?.value = data.smokingYears || '';
+            document.getElementById('smoking-amount')?.value = data.smokingAmount || '';
+        }
+        // 飲酒
+        Array.from(formElements.drinkingStatusGroup.querySelectorAll('button')).forEach(btn => {
+            btn.classList.toggle('active', data.drinkingStatus && data.drinkingStatus.includes(btn.dataset.value));
+        });
+        handleDrinkingDetails(formElements.drinkingStatusGroup.querySelector('button.active'));
+        if (data.drinkingStatus && data.drinkingStatus !== 'なし') {
+            document.getElementById('drinking-type')?.value = data.drinkingType || '';
+            document.getElementById('drinking-amount')?.value = data.drinkingAmount || '';
+        }
+        // ADL
+        formElements.adlAssessmentContainer.querySelectorAll('select').forEach((select, idx) => {
+            select.value = data.adlValues && data.adlValues[idx] !== undefined ? data.adlValues[idx] : select.options[0].value;
+        });
+        updateOutput();
+    };
+
+    const saveData = () => {
+        const adlValues = Array.from(formElements.adlAssessmentContainer.querySelectorAll('select')).map(sel => sel.value);
+        const data = {
+            name: formElements.name.value,
+            age: formElements.age.value,
+            gender: getActiveButtonValues(formElements.genderGroup),
+            histories: getActiveButtonValues(formElements.historyTags),
+            surgery: formElements.surgeryHistory.value,
+            allergies: getActiveButtonValues(formElements.allergyTags),
+            otherAllergies: formElements.otherAllergies.value,
+            medications: Array.from(formElements.medListContainer.querySelectorAll('.med-row')).map(row => {
+                const name = row.querySelector('.med-name').value;
+                const usage = row.querySelector('.med-usage').value;
+                return `${name} ${usage}`.trim();
+            }).filter(med => med),
+            smokingStatus: getActiveButtonValues(formElements.smokingStatusGroup),
+            smokingYears: document.getElementById('smoking-years')?.value || '',
+            smokingAmount: document.getElementById('smoking-amount')?.value || '',
+            drinkingStatus: getActiveButtonValues(formElements.drinkingStatusGroup),
+            drinkingType: document.getElementById('drinking-type')?.value || '',
+            drinkingAmount: document.getElementById('drinking-amount')?.value || '',
+            adlValues,
+        };
+        if (window.PatientManager && typeof window.PatientManager.updateActivePatientData === 'function') {
+            window.PatientManager.updateActivePatientData('app1_data', data);
+        }
+    };
+
     const adlItems = [
             { label: '食事', points: [10, 5, 0], options: ['自立', '一部介助', '全介助'] },
             { label: '移乗', points: [15, 10, 5, 0], options: ['自立', '監視/助言', '一部介助', '全介助'] },
@@ -76,7 +157,10 @@ function initializeChartSupportApp() {
             formElements.adlAssessmentContainer.appendChild(div);
         });
 
-        document.querySelector('#app1 .container-app1').addEventListener('input', updateOutput);
+        document.querySelector('#app1 .container-app1').addEventListener('input', () => {
+            updateOutput();
+            saveData();
+        });
         document.querySelector('#app1 .container-app1').addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON' && !e.target.id.includes('copy') && !e.target.id.includes('add')) {
                 if(e.target.parentElement.classList.contains('button-group')) {
@@ -88,18 +172,24 @@ function initializeChartSupportApp() {
                 if(e.target.parentElement.id === 'smoking-status') handleSmokingDetails(e.target);
                 if(e.target.parentElement.id === 'drinking-status') handleDrinkingDetails(e.target);
                 updateOutput();
+                saveData();
             }
         });
 
-        formElements.addMedRowBtn.addEventListener('click', () => addMedicationRow());
+        formElements.addMedRowBtn.addEventListener('click', () => {
+            addMedicationRow();
+            saveData();
+        });
         formElements.medListContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('delete-button')) {
                 e.target.closest('.med-row').remove();
                 updateOutput();
+                saveData();
             }
         });
         formElements.copyBtn.addEventListener('click', copyToClipboard);
         updateOutput();
+        saveData();
     }
 
     function getActiveButtonValues(groupElement) {
@@ -260,4 +350,6 @@ Barthel Index: ${values.adlScore}点
     }
 
     initialize();
+    // main.jsから呼び出せるようにする
+    document.getElementById('app1').load = loadData;
 }
